@@ -15,3 +15,6 @@ cmd/snapshot-tool/snapshot-tool
 cmd/time-aware-simulator/time-aware-simulator
 cmd/time-aware-simulator/simulation_results.csv
 cmd/time-aware-simulator/venv
+
+# offline-bundle docker images (large binary files)
+offline-bundle/docker-images/*.tar
