@@ -40,6 +40,7 @@ import (
 	"github.com/NVIDIA/KAI-scheduler/pkg/scheduler/framework"
 	"github.com/NVIDIA/KAI-scheduler/pkg/scheduler/log"
 	"github.com/NVIDIA/KAI-scheduler/pkg/scheduler/metrics"
+	"github.com/NVIDIA/KAI-scheduler/pkg/scheduler/visualizer"
 
 	kueue "sigs.k8s.io/kueue/client-go/clientset/versioned"
 )
@@ -92,10 +93,19 @@ func NewScheduler(
 		DiscoveryClient:             discoveryClient,
 	}
 
+	cache := schedcache.New(schedulerCacheParams)
+
+	// Phase 1.3: Initialize and register Visualizer API
+	if mux != nil {
+		vizService := visualizer.NewVisualizerService(cache)
+		vizHandler := visualizer.NewVisualizerHandler(vizService)
+		vizHandler.RegisterRoutes(mux)
+	}
+
 	scheduler := &Scheduler{
 		config:          schedulerConf,
 		schedulerParams: schedulerParams,
-		cache:           schedcache.New(schedulerCacheParams),
+		cache:           cache,
 		schedulePeriod:  schedulerParams.SchedulePeriod,
 		mux:             mux,
 	}

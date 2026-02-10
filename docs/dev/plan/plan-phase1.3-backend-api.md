@@ -1,58 +1,88 @@
-# 实施计划 Phase 1.3: 实现 API 处理程序 (HTTP Handlers)
+# Phase 1.3: API Server 集成计划
 
-本阶段的目标是基于 `VisualizerService` 构建 HTTP 接口层，封装路由逻辑、参数解析和标准 JSON 输出。
+**目标**: 将 `VisualizerService` 集成到 KAI-Scheduler 中，并通过 HTTP 接口暴露服务。
 
----
+## 1. 组件架构
 
-## 1. 任务目标
+集成工作涉及添加一个 Handler 层，用于连接现有的 `VisualizerService` 和调度器的 HTTP 服务器。
 
-- [ ] 实现统一的 HTTP 处理器层。
-- [ ] 实现标准化的错误处理与 JSON 响应封装。
-- [ ] 完成四个核心端点的逻辑实现。
+- **Handler 层**: `pkg/scheduler/visualizer/visualizer_handler.go`
+  - 负责 HTTP 请求解析和 JSON 响应格式化。
+  - 与核心逻辑（位于 `VisualizerService`）解耦。
+- **注册**: `pkg/scheduler/scheduler.go`
+  - 调度器拥有 `http.ServeMux`。
+  - `VisualizerService` 依赖于 `SchedulerCache`。
+  - **初始化流程**:
+    1.  初始化 `SchedulerCache`。
+    2.  初始化 `VisualizerService` (注入 `SchedulerCache`)。
+    3.  初始化 `VisualizerHandler` (注入 `VisualizerService`)。
+    4.  注册路由到 `ServeMux`。
+    5.  初始化 `Scheduler`。
 
----
+## 2. 实施任务列表 (TODO)
 
-## 2. 详细执行步骤
+### 步骤 1: 创建 API Handler
 
-### 2.1 基础设施准备
+**文件**: `pkg/scheduler/visualizer/visualizer_handler.go`
 
-- [ ] 创建文件：`pkg/scheduler/visualizer_handlers.go`
-- [ ] 定义 `VisualizerHandler` 结构体，注入 `VisualizerService`。
-- [ ] 实现 `writeJSON(w, data)` 辅助方法，统一设置 `Content-Type: application/json` 和 CORS 头（若需要）。
+- [x] 创建文件并定义包名 `package visualizer`
+- [x] 定义 `VisualizerHandler` 结构体 (包含 `VisualizerService` 接口)
+- [x] 实现构造函数 `NewVisualizerHandler`
+- [x] 实现辅助方法 `writeJSON(w, data)`:
+  - [x] 设置 `Content-Type: application/json`
+  - [x] 设置 CORS 头 (可选，方便开发)
+  - [x] 处理 JSON 编码错误
+- [x] 实现具体的 Handler 方法:
+  - [x] `handleClusterSummary`: 调用 `GetClusterSummary`
+  - [x] `handleQueues`: 调用 `GetQueues`
+  - [x] `handleJobs`: 解析 `namespace` 参数并调用 `GetJobs`
+  - [x] `handleNodes`: 调用 `GetNodes`
+- [x] 实现路由注册方法 `RegisterRoutes(mux *http.ServeMux)`:
+  - [x] 注册 `/api/v1/visualizer/summary`
+  - [x] 注册 `/api/v1/visualizer/queues`
+  - [x] 注册 `/api/v1/visualizer/jobs`
+  - [x] 注册 `/api/v1/visualizer/nodes`
 
-### 2.2 实现 Summary 端点
+### 步骤 2: 集成到 Scheduler
 
-- [ ] 端点：`GET /api/v1/visualizer/summary`
-- [ ] 逻辑：直接调用 Service 的 `GetClusterSummary` 并返回。
+**文件**: `pkg/scheduler/scheduler.go`
 
-### 2.3 实现 Queues 端点
+- [x] 修改 `NewScheduler` 函数逻辑:
+  - [x] 将 `schedcache.New(...)` 调用提取为单独的 `cache` 变量
+  - [x] 在 `Scheduler` 结构体初始化之前添加 Visualizer 初始化逻辑
+- [x] 实现依赖注入与注册:
+  - [x] 检查 `mux` 是否为 nil
+  - [x] 实例化 `VisualizerService` (传入 `cache`)
+  - [x] 实例化 `VisualizerHandler` (传入 service)
+  - [x] 调用 `handler.RegisterRoutes(mux)`
+- [x] 更新 `Scheduler` 结构体初始化，使用提取出的 `cache` 变量
 
-- [ ] 端点：`GET /api/v1/visualizer/queues`
-- [ ] 逻辑：调用 Service 的 `GetQueues`，返回完整的层级树。
+### 步骤 3: 验证与测试
 
-### 2.4 实现 Jobs 端点
+- [x] **编译检查**:
+  - [x] 确保 `pkg/scheduler/visualizer` 正确导入了 `pkg/scheduler/api/visualizer_info`
+  - [x] 确保没有循环依赖（`scheduler` -> `visualizer` -> `scheduler` 是不允许的，应该是 `scheduler` -> `visualizer` -> `api/visualizer_info`）
+- [ ] **运行时验证**:
+  - [ ] 启动 Scheduler，确保无 Panic
+  - [ ] 检查日志是否有 Visualizer 初始化相关错误
+- [ ] **功能测试 (curl)**:
+  - [ ] `GET /api/v1/visualizer/summary` -> 返回 JSON 格式的集群概况
+  - [ ] `GET /api/v1/visualizer/queues` -> 返回队列层级树
+  - [ ] `GET /api/v1/visualizer/jobs` -> 返回所有作业
+  - [ ] `GET /api/v1/visualizer/jobs?namespace=default` -> 返回指定命名空间的作业
+  - [ ] `GET /api/v1/visualizer/nodes` -> 返回节点及 GPU 详情
 
-- [ ] 端点：`GET /api/v1/visualizer/jobs`
-- [ ] 参数解析：支持从 URL Query 获取 `namespace`。
-- [ ] 逻辑：调用 Service 的 `GetJobs(namespace)`，支持空 Namespace 时返回所有。
+## 3. API 规范参考
 
-### 2.5 实现 Nodes 端点
+| 方法 | 端点                         | 描述                             | 查询参数           |
+| ---- | ---------------------------- | -------------------------------- | ------------------ |
+| GET  | `/api/v1/visualizer/summary` | 获取集群健康状况和统计信息       | -                  |
+| GET  | `/api/v1/visualizer/queues`  | 获取队列层级结构和资源使用情况   | -                  |
+| GET  | `/api/v1/visualizer/jobs`    | 获取作业和任务列表               | `namespace` (可选) |
+| GET  | `/api/v1/visualizer/nodes`   | 获取节点列表及 GPU 拓扑/槽位信息 | -                  |
 
-- [ ] 端点：`GET /api/v1/visualizer/nodes`
-- [ ] 逻辑：调用 Service 的 `GetNodes`，返回包含详细 GPU Slot 信息的节点列表。
+## 4. 风险与注意事项
 
----
-
-## 3. 设计原则
-
-1.  **Restful 风格**：遵循标准的 HTTP 动词和状态码。
-2.  **错误隔离**：如果 Cache Snapshot 失败，返回 500 并附带友好的错误信息。
-3.  **响应流控**：确保大数据量下（如成千上万个 Job）响应不会导致内存溢出。
-
----
-
-## 4. 验收标准
-
-- [ ] 通过本地 `curl` 测试，四个端点均能正常响应 JSON。
-- [ ] `Content-Type` 必须为 `application/json`。
-- [ ] 在 Namespace 不存在时正确返回空列表而非报错。
+1.  **导入路径**: 务必注意使用 `pkg/scheduler/api/visualizer_info` 作为数据模型的导入路径，避免与旧的 `types.go` 或其他包混淆。
+2.  **并发安全**: `VisualizerService` 使用了 `SchedulerCache.Snapshot()`，这是线程安全的操作（基于 K8s 调度器通用模式），确保可视化请求不会破坏核心调度逻辑的数据一致性。
+3.  **性能影响**: API 直接通过 Snapshot 获取数据。虽然 Snapshot 相对高效，但在极高并发下可能会增加调度器内存压力。Phase 1 阶段假设为低频访问（控制台刷新）。
