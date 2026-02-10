@@ -6,10 +6,10 @@
 
 ## 1. 任务目标
 
-- [ ] 定义可视化专用的数据模型（VO/DTO）。
-- [ ] 实现从 `api.ClusterInfo` 到可视化模型的转换逻辑及服务层。
-- [ ] 在调度器的 HTTP Mux 中注册 API 路由。
-- [ ] 确保 API 访问不阻塞主调度循环。
+- [x] 定义可视化专用的数据模型（VO/DTO）。
+- [x] 实现从 `api.ClusterInfo` 到可视化模型的转换逻辑及服务层。
+- [x] 在调度器的 HTTP Mux 中注册 API 路由。
+- [x] 确保 API 访问不阻塞主调度循环。
 
 ---
 
@@ -33,22 +33,22 @@
     - [x] 实现 `GetJobs(namespace string)` 过滤与转换逻辑。
     - [x] 实现 `GetNodes()` 解析映射 GPU 物理占用。
 
-- [ ] **步骤 3：实现 API 处理程序 (HTTP Handlers)**
+- [x] **步骤 3：实现 API 处理程序 (HTTP Handlers)**
   - 编写 HTTP 处理函数，处理路由请求参数并返回标准化 JSON 数据。
   - **文件位置**：`pkg/scheduler/visualizer_handlers.go`
   - **核心端点实现**：
-    - [ ] `GET /api/v1/visualizer/summary`
-    - [ ] `GET /api/v1/visualizer/queues`
-    - [ ] `GET /api/v1/visualizer/jobs` (支持 namespace 过滤)
-    - [ ] `GET /api/v1/visualizer/nodes`
+    - [x] `GET /api/v1/visualizer/summary`
+    - [x] `GET /api/v1/visualizer/queues`
+    - [x] `GET /api/v1/visualizer/jobs` (支持 namespace 过滤)
+    - [x] `GET /api/v1/visualizer/nodes`
 
-- [ ] **步骤 4：生命周期集成 (Wiring)**
+- [x] **步骤 4：生命周期集成 (Wiring)**
   - 在调度器启动和初始化流程中完成服务注入与路由注册。
   - **文件位置**：`pkg/scheduler/scheduler.go`
   - **集成任务**：
-    - [ ] 在 `NewScheduler` 中初始化 `VisualizerService`。
-    - [ ] 将所有 Visualizer 路由注册到 `s.mux`。
-    - [ ] 实现安全的并发缓存访问（利用 Snapshot）。
+    - [x] 在 `NewScheduler` 中初始化 `VisualizerService`。
+    - [x] 将所有 Visualizer 路由注册到 `s.mux`。
+    - [x] 实现安全的并发缓存访问（利用 Snapshot）。
 
 ---
 
@@ -62,7 +62,7 @@
 
 ## 4. 交付物验收标准 (DoD)
 
-- [ ] `pkg/scheduler/api/visualizer` 包及类型定义完成。
-- [ ] `VisualizerService` 转换逻辑通过单元测试。
-- [ ] 调度器 HTTP 接口返回正确格式的 JSON。
-- [ ] 性能达标：大规模数据下响应时间 < 200ms。
+- [x] `pkg/scheduler/api/visualizer` 包及类型定义完成。
+- [x] `VisualizerService` 转换逻辑通过单元测试。
+- [x] 调度器 HTTP 接口返回正确格式的 JSON。
+- [x] 性能达标：大规模数据下响应时间 < 200ms。
