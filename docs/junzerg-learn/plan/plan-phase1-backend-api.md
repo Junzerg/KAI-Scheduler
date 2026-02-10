@@ -15,23 +15,23 @@
 
 ## 2. 详细拆解步骤
 
-- [ ] **步骤 1：定义视图模型 (View Models)**
+- [x] **步骤 1：定义视图模型 (View Models)**
   - 在 `pkg/scheduler/api` 下创建可视化专用包，定义精简的 JSON 返回结构，避免直接透传复杂的 K8s 对象。
-  - **文件位置**：`pkg/scheduler/api/visualizer/types.go`
+  - **文件位置**：`pkg/scheduler/api/visualizer_info/visualizer_info.go`
   - **核心任务**：
-    - [ ] 定义 `ClusterSummary`：概览聚合数据。
-    - [ ] 定义 `QueueView`：递归结构的队列信息。
-    - [ ] 定义 `JobView`：包含任务状态简图的视图。
-    - [ ] 定义 `NodeView`：支持 GPU 插槽展示的节点视图。
+    - [x] 定义 `ClusterSummary`：概览聚合数据。
+    - [x] 定义 `QueueView`：递归结构的队列信息。
+    - [x] 定义 `JobView`：包含任务状态简图的视图。
+    - [x] 定义 `NodeView`：支持 GPU 插槽展示的节点视图。
 
-- [ ] **步骤 2：实现数据转换服务 (Visualizer Service)**
+- [x] **步骤 2：实现数据转换服务 (Visualizer Service)**
   - 创建逻辑层，负责将原始的 `api.ClusterInfo` 数据转换为可视化专用的视图模型。
-  - **文件位置**：`pkg/scheduler/visualizer_service.go`
+  - **文件位置**：`pkg/scheduler/visualizer/visualizer_service.go`
   - **核心功能实现**：
-    - [ ] 实现 `GetClusterSummary()` 统计全局资源。
-    - [ ] 实现 `GetQueues()` 递归构建队列树逻辑。
-    - [ ] 实现 `GetJobs(namespace string)` 过滤与转换逻辑。
-    - [ ] 实现 `GetNodes()` 解析映射 GPU 物理占用。
+    - [x] 实现 `GetClusterSummary()` 统计全局资源。
+    - [x] 实现 `GetQueues()` 递归构建队列树逻辑。
+    - [x] 实现 `GetJobs(namespace string)` 过滤与转换逻辑。
+    - [x] 实现 `GetNodes()` 解析映射 GPU 物理占用。
 
 - [ ] **步骤 3：实现 API 处理程序 (HTTP Handlers)**
   - 编写 HTTP 处理函数，处理路由请求参数并返回标准化 JSON 数据。
