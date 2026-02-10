@@ -62,17 +62,120 @@
 - [x] **编译检查**:
   - [x] 确保 `pkg/scheduler/visualizer` 正确导入了 `pkg/scheduler/api/visualizer_info`
   - [x] 确保没有循环依赖（`scheduler` -> `visualizer` -> `scheduler` 是不允许的，应该是 `scheduler` -> `visualizer` -> `api/visualizer_info`）
-- [ ] **运行时验证**:
-  - [ ] 启动 Scheduler，确保无 Panic
-  - [ ] 检查日志是否有 Visualizer 初始化相关错误
-- [ ] **功能测试 (curl)**:
-  - [ ] `GET /api/v1/visualizer/summary` -> 返回 JSON 格式的集群概况
-  - [ ] `GET /api/v1/visualizer/queues` -> 返回队列层级树
-  - [ ] `GET /api/v1/visualizer/jobs` -> 返回所有作业
-  - [ ] `GET /api/v1/visualizer/jobs?namespace=default` -> 返回指定命名空间的作业
-  - [ ] `GET /api/v1/visualizer/nodes` -> 返回节点及 GPU 详情
+- [x] **运行时验证**:
+  - [x] 使用本地源码通过 `go run ./cmd/scheduler/main.go` 启动 Scheduler，连接当前 kind/docker-desktop 集群，确保进程无 Panic：
 
-## 3. API 规范参考
+    ```bash
+    go run ./cmd/scheduler/main.go \
+      --scheduler-conf=/tmp/kai-scheduler-config.yaml \
+      --scheduler-name=kai-scheduler \
+      --namespace=kai-scheduler \
+      --listen-address=":8080" \
+      --plugin-server-port=8081 \
+      --leader-elect=false
+    ```
+
+  - [x] 日志中仅存在可忽略的 CRD 缺失告警（例如 `topologies.kueue.x-k8s.io`），主循环正常运行
+  - [x] 如需避免与集群内 scheduler 选主冲突，可在调试期间暂时将 `kai-scheduler-default` Deployment scale 到 0 副本
+- [x] **功能测试 (curl)**:
+  - [x] `GET /api/v1/visualizer/summary` -> 返回 JSON 格式的集群概况：
+
+    ```bash
+    curl -sS http://127.0.0.1:8081/api/v1/visualizer/summary | jq .
+    ```
+
+  - [x] `GET /api/v1/visualizer/queues` -> 返回队列层级树：
+
+    ```bash
+    curl -sS http://127.0.0.1:8081/api/v1/visualizer/queues | jq .
+    ```
+
+  - [x] `GET /api/v1/visualizer/jobs` -> 返回所有作业：
+
+    ```bash
+    curl -sS http://127.0.0.1:8081/api/v1/visualizer/jobs | jq .
+    ```
+
+  - [x] `GET /api/v1/visualizer/jobs?namespace=default` -> 返回指定命名空间的作业：
+
+    ```bash
+    curl -sS "http://127.0.0.1:8081/api/v1/visualizer/jobs?namespace=default" | jq .
+    ```
+
+  - [x] `GET /api/v1/visualizer/nodes` -> 返回节点及 GPU 详情：
+
+    ```bash
+    curl -sS http://127.0.0.1:8081/api/v1/visualizer/nodes | jq .
+    ```
+
+## 3. 本地调试与 kind 集群联动
+
+集成 Visualizer API 后，推荐在本地使用 `go run` 直接连接现有 kind/docker-desktop 集群进行调试，而不是每次都重打镜像 / 重新部署。
+
+### 3.1 从集群复制 scheduler 配置到本地
+
+集群中 `kai-scheduler-default` Shard 的配置存放在同名 ConfigMap 中：
+
+```bash
+kubectl -n kai-scheduler get configmap kai-scheduler-default \
+  -o jsonpath='{.data.config\.yaml}' \
+  > /tmp/kai-scheduler-config.yaml
+```
+
+该文件即为生产中正在使用的 scheduler 配置，之后本地调试直接复用。
+
+### 3.2 可选：避免与集群内 scheduler 抢调度
+
+如果希望只让本地进程调度，调试期间可以暂时将集群内 Deployment 缩到 0：
+
+```bash
+kubectl -n kai-scheduler scale deployment kai-scheduler-default --replicas=0
+```
+
+调试结束后恢复：
+
+```bash
+kubectl -n kai-scheduler scale deployment kai-scheduler-default --replicas=1
+```
+
+### 3.3 本地启动 scheduler（使用最新代码）
+
+在项目根目录执行：
+
+```bash
+cd /home/junzerg/projects/KAI-Scheduler
+
+go run ./cmd/scheduler/main.go \
+  --scheduler-conf=/tmp/kai-scheduler-config.yaml \
+  --scheduler-name=kai-scheduler \
+  --namespace=kai-scheduler \
+  --listen-address=":8080" \
+  --plugin-server-port=8081 \
+  --leader-elect=false
+```
+
+说明：
+
+- 使用 `clientconfig.GetConfigOrDie()`，会自动复用当前 `kubectl` 的 context（例如 `docker-desktop`），直接连到同一个集群。
+- Visualizer HTTP API 绑定在 `--plugin-server-port` 指定的端口（上例为 `8081`），metrics 在 `--listen-address`（上例为 `:8080`）。
+
+### 3.4 通过 curl 验证 Visualizer API
+
+在另一个终端窗口中，保持 `go run` 进程运行不退出：
+
+```bash
+curl -sS http://127.0.0.1:8081/api/v1/visualizer/summary | jq .
+curl -sS http://127.0.0.1:8081/api/v1/visualizer/queues  | jq .
+curl -sS http://127.0.0.1:8081/api/v1/visualizer/jobs    | jq .
+curl -sS "http://127.0.0.1:8081/api/v1/visualizer/jobs?namespace=default" | jq .
+curl -sS http://127.0.0.1:8081/api/v1/visualizer/nodes   | jq .
+```
+
+当集群中存在诸如 `cpu-only-pod` 的工作负载时，`jobs` 接口应返回对应的 PodGroup / Task 信息，`nodes` 接口应列出 kind 节点及资源情况。
+
+> 注意：日志中如出现 `failed to list *v1alpha1.Topology`（`topologies.kueue.x-k8s.io`）之类的错误，仅表示当前集群未安装对应 CRD，不影响 Visualizer 基本功能，可在 Phase 1.3 暂时忽略。
+
+## 4. API 规范参考
 
 | 方法 | 端点                         | 描述                             | 查询参数           |
 | ---- | ---------------------------- | -------------------------------- | ------------------ |
@@ -81,7 +184,7 @@
 | GET  | `/api/v1/visualizer/jobs`    | 获取作业和任务列表               | `namespace` (可选) |
 | GET  | `/api/v1/visualizer/nodes`   | 获取节点列表及 GPU 拓扑/槽位信息 | -                  |
 
-## 4. 风险与注意事项
+## 5. 风险与注意事项
 
 1.  **导入路径**: 务必注意使用 `pkg/scheduler/api/visualizer_info` 作为数据模型的导入路径，避免与旧的 `types.go` 或其他包混淆。
 2.  **并发安全**: `VisualizerService` 使用了 `SchedulerCache.Snapshot()`，这是线程安全的操作（基于 K8s 调度器通用模式），确保可视化请求不会破坏核心调度逻辑的数据一致性。
