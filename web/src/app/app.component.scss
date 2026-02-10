@@ -1,0 +1,42 @@
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.main-toolbar {
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.26);
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.sidenav-container {
+  flex: 1;
+}
+
+.app-sidenav {
+  width: 250px;
+  border-right: 1px solid rgba(0,0,0,0.12);
+}
+
+.main-content {
+  padding: 20px;
+  background-color: #f8fafb; /* Kubeflow style */
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.active-link {
+  background: rgba(0,0,0,0.04);
+  color: #3f51b5; /* Primary */
+  font-weight: 500;
+}

@@ -18,3 +18,15 @@ cmd/time-aware-simulator/venv
 
 # offline-bundle docker images (large binary files)
 offline-bundle/docker-images/*.tar
+
+# Frontend (Angular/Web)
+web/node_modules/
+web/dist/
+web/.angular/
+web/tmp/
+web/out-tsc/
+web/bazel-out/
+web/test-results/
+web/.idea/
+web/.vscode/
+web/.DS_Store

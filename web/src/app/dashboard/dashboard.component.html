@@ -1,0 +1,54 @@
+<div
+  class="dashboard-container"
+  *ngIf="summary$ | async as summary; else loading"
+>
+  <div class="grid-container">
+    <mat-card class="dashboard-card">
+      <mat-card-header>
+        <mat-card-title>Nodes</mat-card-title>
+        <mat-card-subtitle>Cluster Capacity</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="metric-value">{{ summary.totalNodes }}</div>
+        <div class="metric-sub">Healthy: {{ summary.healthyNodes }}</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="dashboard-card">
+      <mat-card-header>
+        <mat-card-title>GPUs</mat-card-title>
+        <mat-card-subtitle>Resource Usage</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="metric-value">{{ summary.totalGPUs }}</div>
+        <div class="metric-sub">Allocated: {{ summary.allocatedGPUs }}</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="dashboard-card">
+      <mat-card-header>
+        <mat-card-title>Jobs</mat-card-title>
+        <mat-card-subtitle>Workload Status</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="metric-list">
+          <div class="metric-item">
+            <span>Pending:</span>
+            <span>{{ summary.jobCounts["Pending"] || 0 }}</span>
+          </div>
+          <div class="metric-item">
+            <span>Running:</span>
+            <span>{{ summary.jobCounts["Running"] || 0 }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
+
+<ng-template #loading>
+  <div class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading cluster summary...</p>
+  </div>
+</ng-template>
