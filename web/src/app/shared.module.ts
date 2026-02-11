@@ -1,4 +1,5 @@
 import { MatTableModule } from '@angular/material/table';
+import { MatTreeModule } from '@angular/material/tree';
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -33,6 +34,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
     MatToolbarModule,
     MatProgressSpinnerModule,
     MatTableModule,
+    MatTreeModule,
     MatInputModule,
     MatFormFieldModule,
     MatSelectModule,
@@ -54,6 +56,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
     MatToolbarModule,
     MatProgressSpinnerModule,
     MatTableModule,
+    MatTreeModule,
     MatInputModule,
     MatFormFieldModule,
     MatSelectModule,

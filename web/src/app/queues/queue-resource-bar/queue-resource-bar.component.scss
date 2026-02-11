@@ -1,0 +1,86 @@
+.resource-bar-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    // Add horizontal padding (10px) to ensure text doesn't hit the component edges
+    padding: 4px 10px;
+    font-size: 11px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.bar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2px;
+    color: #555;
+    white-space: nowrap;
+
+    .resource-name {
+        font-weight: 500;
+        margin-right: 8px;
+        flex-shrink: 0;
+    }
+
+    .resource-values {
+        font-family: monospace;
+        text-align: right;
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        .val-used {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .val-guaranteed {
+            color: #666;
+        }
+
+        .val-max {
+            color: #888;
+        }
+    }
+}
+
+.progress-track {
+    position: relative;
+    height: 8px;
+    background-color: #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+    width: 100%;
+}
+
+.guaranteed-marker {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: #000;
+    opacity: 0.3;
+    z-index: 5;
+    transform: translateX(-50%);
+}
+
+.usage-bar {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+
+    &.primary {
+        background-color: #4caf50;
+    }
+
+    &.accent {
+        background-color: #ff9800;
+    }
+
+    &.warn {
+        background-color: #f44336;
+    }
+}

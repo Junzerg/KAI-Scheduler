@@ -1,0 +1,62 @@
+<div class="queues-container">
+    <h2>Queue Hierarchy</h2>
+
+    <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
+        <!-- Leaf Node -->
+        <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
+            <!-- Use a consistent indentation spacer if needed, but matTreeNodePadding handles it -->
+            <div class="node-content">
+                <div class="node-header">
+                    <button mat-icon-button disabled></button> <!-- Spacer for alignment -->
+                    <span class="queue-name">{{node.name}}</span>
+                    <span class="queue-weight">Weight: {{node.weight}}</span>
+                </div>
+
+                <div class="resource-bars">
+                    <app-queue-resource-bar resourceName="CPU" unit="m" [allocated]="node.resources.allocated.milliCPU"
+                        [guaranteed]="node.resources.guaranteed.milliCPU" [max]="node.resources.max.milliCPU">
+                    </app-queue-resource-bar>
+
+                    <app-queue-resource-bar resourceName="Memory" unit="GiB"
+                        [allocated]="node.resources.allocated.memory" [guaranteed]="node.resources.guaranteed.memory"
+                        [max]="node.resources.max.memory">
+                    </app-queue-resource-bar>
+
+                    <app-queue-resource-bar resourceName="GPU" unit="gpu" [allocated]="node.resources.allocated.gpu"
+                        [guaranteed]="node.resources.guaranteed.gpu" [max]="node.resources.max.gpu">
+                    </app-queue-resource-bar>
+                </div>
+            </div>
+        </mat-tree-node>
+
+        <!-- Expandable Node -->
+        <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
+            <div class="node-content">
+                <div class="node-header">
+                    <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'Toggle ' + node.name">
+                        <mat-icon class="mat-icon-rtl-mirror">
+                            {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+                        </mat-icon>
+                    </button>
+                    <span class="queue-name font-bold">{{node.name}}</span>
+                    <span class="queue-weight">Weight: {{node.weight}}</span>
+                </div>
+
+                <div class="resource-bars">
+                    <app-queue-resource-bar resourceName="CPU" unit="m" [allocated]="node.resources.allocated.milliCPU"
+                        [guaranteed]="node.resources.guaranteed.milliCPU" [max]="node.resources.max.milliCPU">
+                    </app-queue-resource-bar>
+
+                    <app-queue-resource-bar resourceName="Memory" unit="GiB"
+                        [allocated]="node.resources.allocated.memory" [guaranteed]="node.resources.guaranteed.memory"
+                        [max]="node.resources.max.memory">
+                    </app-queue-resource-bar>
+
+                    <app-queue-resource-bar resourceName="GPU" unit="gpu" [allocated]="node.resources.allocated.gpu"
+                        [guaranteed]="node.resources.guaranteed.gpu" [max]="node.resources.max.gpu">
+                    </app-queue-resource-bar>
+                </div>
+            </div>
+        </mat-tree-node>
+    </mat-tree>
+</div>

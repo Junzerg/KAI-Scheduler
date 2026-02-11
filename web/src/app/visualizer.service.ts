@@ -36,6 +36,24 @@ export class VisualizerService {
   getNodes(): Observable<NodeView[]> {
     return this.http.get<NodeView[]>(`${this.apiUrl}/nodes`);
   }
+
+  getQueues(): Observable<QueueView[]> {
+    return this.http.get<QueueView[]>(`${this.apiUrl}/queues`);
+  }
+}
+
+export interface QueueResources {
+  guaranteed: ResourceStats;
+  allocated: ResourceStats;
+  max: ResourceStats;
+}
+
+export interface QueueView {
+  name: string;
+  parent: string;
+  weight: number;
+  resources: QueueResources;
+  children: QueueView[];
 }
 
 export interface ResourceStats {

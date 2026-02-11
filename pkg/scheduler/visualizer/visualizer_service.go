@@ -83,17 +83,58 @@ func (vs *visualizerService) GetQueues() ([]*vizinfo.QueueView, error) {
 		return nil, err
 	}
 
+	// 0. Compute actual resource usage per queue from PodGroupInfos
+	//    This is the most reliable source of truth—it works even without Prometheus.
+	type queueAllocated struct {
+		milliCPU int64
+		memory   int64
+		gpu      int64
+	}
+	queueUsageMap := make(map[string]*queueAllocated)
+
+	for _, pgi := range snapshot.PodGroupInfos {
+		queueName := string(pgi.Queue)
+		if queueName == "" {
+			continue
+		}
+		if _, exists := queueUsageMap[queueName]; !exists {
+			queueUsageMap[queueName] = &queueAllocated{}
+		}
+		qa := queueUsageMap[queueName]
+
+		for _, podInfo := range pgi.GetAllPodsMap() {
+			if !pod_status.IsActiveUsedStatus(podInfo.Status) {
+				continue
+			}
+			if podInfo.ResReq != nil {
+				qa.milliCPU += int64(podInfo.ResReq.Cpu())
+				qa.memory += int64(podInfo.ResReq.Memory())
+				qa.gpu += int64(podInfo.ResReq.GPUs())
+			}
+		}
+	}
+
 	queueViews := make(map[string]*vizinfo.QueueView)
 
 	// 1. Create all view objects
 	for id, qi := range snapshot.Queues {
+		// Build allocated stats from our computed usage
+		allocated := vizinfo.ResourceStats{}
+		if qa, found := queueUsageMap[string(id)]; found {
+			allocated = vizinfo.ResourceStats{
+				MilliCPU: qa.milliCPU,
+				Memory:   qa.memory,
+				GPU:      qa.gpu,
+			}
+		}
+
 		view := &vizinfo.QueueView{
 			Name:   qi.Name,
 			Parent: string(qi.ParentQueue),
 			Weight: int32(qi.Priority),
 			Resources: &vizinfo.QueueResources{
 				Guaranteed: convertQuotaToStats(qi.Resources),
-				Allocated:  convertUsageToStats(qi.ResourceUsage),
+				Allocated:  allocated,
 				Max:        convertQuotaLimitToStats(qi.Resources),
 			},
 			Children: []*vizinfo.QueueView{},
@@ -118,7 +159,22 @@ func (vs *visualizerService) GetQueues() ([]*vizinfo.QueueView, error) {
 		}
 	}
 
+	// 3. Bubble up: accumulate child usage into parent queues (post-order)
+	for _, root := range roots {
+		accumulateChildUsage(root)
+	}
+
 	return roots, nil
+}
+
+// accumulateChildUsage recursively sums child allocated resources into the parent.
+func accumulateChildUsage(node *vizinfo.QueueView) {
+	for _, child := range node.Children {
+		accumulateChildUsage(child)
+		node.Resources.Allocated.MilliCPU += child.Resources.Allocated.MilliCPU
+		node.Resources.Allocated.Memory += child.Resources.Allocated.Memory
+		node.Resources.Allocated.GPU += child.Resources.Allocated.GPU
+	}
 }
 
 // GetJobs returns the list of jobs and their tasks, optionally filtered by namespace.
@@ -252,19 +308,27 @@ func getJobStatus(pgi *podgroup_info.PodGroupInfo) string {
 
 // Resource conversion helpers
 
+// clampNeg clamps a value to 0 if negative (negative means "unlimited" in KAI CRD spec).
+func clampNeg(v float64) float64 {
+	if v < 0 {
+		return 0
+	}
+	return v
+}
+
 func convertQuotaToStats(q queue_info.QueueQuota) vizinfo.ResourceStats {
 	return vizinfo.ResourceStats{
-		MilliCPU: int64(q.CPU.Quota * 1000),
-		Memory:   int64(q.Memory.Quota),
-		GPU:      int64(q.GPU.Quota),
+		MilliCPU: int64(clampNeg(q.CPU.Quota) * 1000),
+		Memory:   int64(clampNeg(q.Memory.Quota)),
+		GPU:      int64(clampNeg(q.GPU.Quota)),
 	}
 }
 
 func convertQuotaLimitToStats(q queue_info.QueueQuota) vizinfo.ResourceStats {
 	return vizinfo.ResourceStats{
-		MilliCPU: int64(q.CPU.Limit * 1000),
-		Memory:   int64(q.Memory.Limit),
-		GPU:      int64(q.GPU.Limit),
+		MilliCPU: int64(clampNeg(q.CPU.Limit) * 1000),
+		Memory:   int64(clampNeg(q.Memory.Limit)),
+		GPU:      int64(clampNeg(q.GPU.Limit)),
 	}
 }
 

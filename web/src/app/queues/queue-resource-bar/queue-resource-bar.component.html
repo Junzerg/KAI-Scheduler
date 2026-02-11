@@ -1,0 +1,21 @@
+<div class="resource-bar-container" [matTooltip]="tooltipText">
+    <!-- Label & Values -->
+    <div class="bar-header">
+        <span class="resource-name">{{ resourceName }}</span>
+        <span class="resource-values">
+            <span class="val-used">{{ displayAllocated }}</span> /
+            <span class="val-guaranteed">{{ displayGuaranteed }}</span>
+            <span class="val-max" *ngIf="max > 0"> / {{ displayMax }}</span>
+        </span>
+    </div>
+
+    <!-- Progress Bar Track -->
+    <div class="progress-track">
+        <!-- Guaranteed Marker (Vertical Line) -->
+        <div class="guaranteed-marker" [style.left.%]="guaranteedPercent" *ngIf="guaranteed > 0"></div>
+
+        <!-- Usage Bar -->
+        <div class="usage-bar" [style.width.%]="usagePercent" [ngClass]="statusColor">
+        </div>
+    </div>
+</div>

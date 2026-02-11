@@ -1,0 +1,64 @@
+.queues-container {
+    padding: 20px;
+}
+
+mat-tree {
+    margin-top: 10px;
+}
+
+mat-tree-node {
+    min-height: auto;
+    align-items: flex-start;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #eee;
+}
+
+.node-content {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    box-sizing: border-box;
+    // Add right padding to the whole content block to avoid hitting the scrollbar/edge
+    padding-right: 16px;
+}
+
+.node-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+
+    .queue-name {
+        font-size: 16px;
+        margin-right: 16px;
+    }
+
+    .font-bold {
+        font-weight: bold;
+    }
+
+    .queue-weight {
+        font-size: 12px;
+        color: #888;
+        background: #f0f0f0;
+        padding: 2px 6px;
+        border-radius: 4px;
+    }
+}
+
+.resource-bars {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    width: 100%;
+    padding-left: 0;
+    // Ensure the container itself respects the parent's width
+    box-sizing: border-box;
+    margin-top: 4px;
+
+    app-queue-resource-bar {
+        flex: 1 1 240px;
+        min-width: 200px;
+        max-width: 100%;
+    }
+}

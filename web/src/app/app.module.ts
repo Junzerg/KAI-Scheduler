@@ -13,6 +13,8 @@ import { NodesComponent } from './nodes/nodes.component';
 import { NodeCardComponent } from './nodes/node-card/node-card.component';
 import { GpuSlotsComponent } from './nodes/gpu-slots/gpu-slots.component';
 import { NodeGridComponent } from './nodes/node-grid/node-grid.component';
+import { QueuesComponent } from './queues/queues.component';
+import { QueueResourceBarComponent } from './queues/queue-resource-bar/queue-resource-bar.component';
 
 @NgModule({
   declarations: [
@@ -22,7 +24,9 @@ import { NodeGridComponent } from './nodes/node-grid/node-grid.component';
     NodesComponent,
     NodeCardComponent,
     GpuSlotsComponent,
-    NodeGridComponent
+    NodeGridComponent,
+    QueuesComponent,
+    QueueResourceBarComponent
   ],
   imports: [
     BrowserModule,
