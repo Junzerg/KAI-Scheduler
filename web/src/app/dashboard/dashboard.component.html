@@ -1,7 +1,21 @@
-<div
-  class="dashboard-container"
-  *ngIf="summary$ | async as summary; else loading"
->
+<!-- Skeleton Loading State -->
+<div class="dashboard-container" *ngIf="isLoading && !summary">
+  <div class="grid-container">
+    <mat-card class="dashboard-card skeleton-card" *ngFor="let i of [1,2,3,4]">
+      <mat-card-header>
+        <div class="skeleton skeleton-title"></div>
+        <div class="skeleton skeleton-subtitle"></div>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="skeleton skeleton-metric"></div>
+        <div class="skeleton skeleton-sub"></div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
+
+<!-- Loaded State -->
+<div class="dashboard-container" *ngIf="summary">
   <div class="grid-container">
     <mat-card class="dashboard-card">
       <mat-card-header>
@@ -27,28 +41,23 @@
 
     <mat-card class="dashboard-card">
       <mat-card-header>
-        <mat-card-title>Jobs</mat-card-title>
-        <mat-card-subtitle>Workload Status</mat-card-subtitle>
+        <mat-card-title>Queues</mat-card-title>
+        <mat-card-subtitle>Resource Pools</mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
-        <div class="metric-list">
-          <div class="metric-item">
-            <span>Pending:</span>
-            <span>{{ summary.jobCounts["Pending"] || 0 }}</span>
-          </div>
-          <div class="metric-item">
-            <span>Running:</span>
-            <span>{{ summary.jobCounts["Running"] || 0 }}</span>
-          </div>
-        </div>
+        <div class="metric-value">{{ summary.totalQueues }}</div>
+        <div class="metric-sub">Active queues</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="dashboard-card chart-card">
+      <mat-card-header>
+        <mat-card-title>Job Distribution</mat-card-title>
+        <mat-card-subtitle>By Status</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <app-job-donut-chart [jobCounts]="summary.jobCounts"></app-job-donut-chart>
       </mat-card-content>
     </mat-card>
   </div>
 </div>
-
-<ng-template #loading>
-  <div class="loading-container">
-    <mat-spinner diameter="50"></mat-spinner>
-    <p>Loading cluster summary...</p>
-  </div>
-</ng-template>

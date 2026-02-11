@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -15,6 +15,9 @@ import { GpuSlotsComponent } from './nodes/gpu-slots/gpu-slots.component';
 import { NodeGridComponent } from './nodes/node-grid/node-grid.component';
 import { QueuesComponent } from './queues/queues.component';
 import { QueueResourceBarComponent } from './queues/queue-resource-bar/queue-resource-bar.component';
+import { ErrorBannerComponent } from './error-banner/error-banner.component';
+import { JobDonutChartComponent } from './dashboard/job-donut-chart/job-donut-chart.component';
+import { ApiErrorInterceptor } from './error.interceptor';
 
 @NgModule({
   declarations: [
@@ -26,7 +29,9 @@ import { QueueResourceBarComponent } from './queues/queue-resource-bar/queue-res
     GpuSlotsComponent,
     NodeGridComponent,
     QueuesComponent,
-    QueueResourceBarComponent
+    QueueResourceBarComponent,
+    ErrorBannerComponent,
+    JobDonutChartComponent
   ],
   imports: [
     BrowserModule,
@@ -35,7 +40,9 @@ import { QueueResourceBarComponent } from './queues/queue-resource-bar/queue-res
     AppRoutingModule,
     SharedModule
   ],
-  providers: [],
+  providers: [
+    { provide: HTTP_INTERCEPTORS, useClass: ApiErrorInterceptor, multi: true }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

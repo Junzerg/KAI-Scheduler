@@ -1,0 +1,7 @@
+<div class="error-banner" *ngIf="errorService.error$ | async as errorMsg" @slideIn>
+    <mat-icon class="error-icon">error_outline</mat-icon>
+    <span class="error-text">{{ errorMsg }}</span>
+    <button mat-icon-button class="dismiss-btn" (click)="errorService.clearError()" matTooltip="Dismiss">
+        <mat-icon>close</mat-icon>
+    </button>
+</div>

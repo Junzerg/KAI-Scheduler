@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FlatTreeControl } from '@angular/cdk/tree';
 import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
 import { VisualizerService, QueueView } from '../visualizer.service';
-import { BehaviorSubject, timer } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { RefreshService } from '../refresh.service';
+import { Subscription } from 'rxjs';
+import { switchMap, catchError } from 'rxjs/operators';
+import { of } from 'rxjs';
 
 /** Flat node with expandable and level information */
 interface QueueFlatNode {
@@ -20,7 +22,7 @@ interface QueueFlatNode {
     templateUrl: './queues.component.html',
     styleUrls: ['./queues.component.scss']
 })
-export class QueuesComponent implements OnInit {
+export class QueuesComponent implements OnInit, OnDestroy {
 
     // Transformer: Map nested QueueView to flat QueueFlatNode
     private _transformer = (node: QueueView, level: number) => {
@@ -47,21 +49,28 @@ export class QueuesComponent implements OnInit {
 
     dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
 
-    constructor(private visualizerService: VisualizerService) { }
+    private sub!: Subscription;
+
+    constructor(
+        private visualizerService: VisualizerService,
+        private refreshService: RefreshService,
+    ) { }
 
     ngOnInit(): void {
-        // Auto-refresh every 5 seconds
-        timer(0, 5000).pipe(
-            switchMap(() => this.visualizerService.getQueues())
+        this.sub = this.refreshService.tick$.pipe(
+            switchMap(() => this.visualizerService.getQueues().pipe(
+                catchError(() => of([]))
+            ))
         ).subscribe(data => {
             this.dataSource.data = data;
-            // Optionally expand all by default? Or keep state?
-            // Keeping state with MatTree is tricky on full refresh. 
-            // For Phase 1, we might just collapse or expand all.
             if (this.treeControl.dataNodes && this.treeControl.dataNodes.length > 0) {
                 this.treeControl.expandAll();
             }
         });
+    }
+
+    ngOnDestroy(): void {
+        this.sub?.unsubscribe();
     }
 
     hasChild = (_: number, node: QueueFlatNode) => node.expandable;

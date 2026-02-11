@@ -1,0 +1,26 @@
+.error-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    background: #d32f2f;
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 0;
+    // Sits at top of main-content area
+    margin: -20px -20px 16px -20px;
+}
+
+.error-icon {
+    flex-shrink: 0;
+}
+
+.error-text {
+    flex: 1;
+}
+
+.dismiss-btn {
+    color: white;
+    flex-shrink: 0;
+}

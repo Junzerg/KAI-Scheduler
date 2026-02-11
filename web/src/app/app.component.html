@@ -5,6 +5,13 @@
     </button>
     <span class="app-title">KAI Scheduler Console</span>
     <span class="spacer"></span>
+
+    <!-- Auto-refresh toggle -->
+    <button mat-icon-button (click)="refreshService.togglePause()"
+      [matTooltip]="(refreshService.isPaused$ | async) ? 'Resume auto-refresh' : 'Pause auto-refresh'">
+      <mat-icon>{{ (refreshService.isPaused$ | async) ? 'play_arrow' : 'pause' }}</mat-icon>
+    </button>
+
     <!-- Namespace Selector -->
     <mat-form-field appearance="outline" class="namespace-selector">
       <mat-label>Namespace</mat-label>
@@ -40,6 +47,7 @@
     </mat-sidenav>
 
     <mat-sidenav-content class="main-content">
+      <app-error-banner></app-error-banner>
       <router-outlet></router-outlet>
     </mat-sidenav-content>
   </mat-sidenav-container>

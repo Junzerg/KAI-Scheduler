@@ -1,7 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Observable, BehaviorSubject, timer, NEVER } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { shareReplay, switchMap, map } from 'rxjs/operators';
 import { NodeView, VisualizerService } from '../visualizer.service';
+import { RefreshService } from '../refresh.service';
 
 @Component({
   selector: 'app-nodes',
@@ -13,29 +14,19 @@ export class NodesComponent implements OnInit, OnDestroy {
   nodes$: Observable<NodeView[]> | null = null;
   filteredNodes$: Observable<NodeView[]> | null = null;
 
-  // Controls
-  autoRefresh = true;
-  refreshInterval = 5000;
-  private refreshState$ = new BehaviorSubject<boolean>(true);
-
   // Filter state
   filterText = '';
   showGpuOnly = false;
 
-  constructor(private service: VisualizerService) { }
+  constructor(
+    private service: VisualizerService,
+    private refreshService: RefreshService,
+  ) { }
 
   ngOnInit(): void {
-    this.nodes$ = this.refreshState$.pipe(
-      switchMap(isAuto => {
-        if (isAuto) {
-          return timer(0, this.refreshInterval).pipe(
-            switchMap(() => this.service.getNodes())
-          );
-        } else {
-          return NEVER;
-        }
-      }),
-      shareReplay(1)
+    this.nodes$ = this.refreshService.tick$.pipe(
+      switchMap(() => this.service.getNodes()),
+      shareReplay(1),
     );
 
     this.applyFilters();
@@ -43,11 +34,6 @@ export class NodesComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     // Async pipe handles unsubscription
-  }
-
-  toggleAutoRefresh(): void {
-    this.autoRefresh = !this.autoRefresh;
-    this.refreshState$.next(this.autoRefresh);
   }
 
   applyFilters(): void {

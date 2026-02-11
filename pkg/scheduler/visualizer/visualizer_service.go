@@ -299,10 +299,11 @@ func getJobStatus(pgi *podgroup_info.PodGroupInfo) string {
 	if pgi.GetNumPendingTasks() > 0 {
 		return "Pending"
 	}
-	// Fallback status for jobs that are neither running nor pending (e.g. Failed, Succeeded, Unknown)
-	// For visualization purpose, we categorize them as Failed or Completed if we had that state.
-	// Based on requirement generic "Failed" for non-active/pending.
-	// Based on requirement generic "Failed" for non-active/pending.
+	// Check if any pods have succeeded — if so, the job completed successfully.
+	if len(pgi.PodStatusIndex[pod_status.Succeeded]) > 0 {
+		return "Completed"
+	}
+	// No running, pending, or succeeded pods → treat as Failed.
 	return "Failed"
 }
 

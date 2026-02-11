@@ -26,7 +26,8 @@
 
 - [x] 实现响应式的 **侧边栏/导航栏 (Sidenav)** (Dashboard, Queues, Jobs, Nodes)。
 - [x] 创建 **顶部栏 (Toolbar)**，包含全局命名空间选择器 (Namespace Selector)。
-- [ ] 实现 **全局状态服务** (RxJS BehaviorSubject)，用于管理当前选中的 Namespace 和用户偏好设置。
+- [x] 实现 **全局状态服务** (RxJS BehaviorSubject)，用于管理当前选中的 Namespace (`NamespaceService`) 和全局刷新控制 (`RefreshService`)。
+- [ ] (可选) 用户偏好设置持久化 (如主题、刷新间隔等)。
 
 ---
 
@@ -41,8 +42,8 @@
 
 ### 2.2 作业状态分布
 
-- [ ] 环形图 (Donut Chart): 按状态展示作业分布 (Pending, Running, Failed, Completed)。
-- [ ] 点击图表扇区可快速跳转到 Jobs 页面并过滤对应状态。
+- [x] 环形图 (Donut Chart): 按状态展示作业分布 (Pending, Running, Failed, Completed)。
+- [x] 点击图表扇区可快速跳转到 Jobs 页面并过滤对应状态。
 
 ---
 
@@ -52,16 +53,17 @@
 
 ### 3.1 树形视图 / 矩形树图 (Treemap)
 
-- [ ] 实现交互式的 **树形组件** (`mat-tree`) 或 **Sunburst/Treemap 图表** 来展示嵌套的队列结构。
-- [ ] 可视化标识：
+- [x] 实现交互式的 **树形组件** (`mat-tree`) 来展示嵌套的队列结构。
+- [x] 可视化标识 (`QueueResourceBarComponent`)：
   - **保证配额 (Guaranteed)** (最小资源保障)。
   - **上限 (Max Limit)** (突发容量)。
-  - **当前使用量 (Usage)** (实时的资源条)。
+  - **当前使用量 (Usage)** (实时的资源条，颜色随使用率变化)。
 
 ### 3.2 队列详情面板
 
 - [ ] 点击队列节点时，弹出侧边栏 (`mat-sidenav`) 或模态框 (`mat-dialog`)，展示详细的 CPU/Memory/GPU 使用统计。
-- [ ] 展示“公平共享得分” (Fair Share Score/Weight)。
+- [x] 展示队列权重 (Weight)，已在树节点上直接显示。
+- [ ] (增强) 展示详细的"公平共享得分"分析面板。
 
 ---
 
@@ -71,15 +73,15 @@
 
 ### 4.1 高级数据表格
 
-- [ ] 使用 `mat-table` 实现支持排序、过滤、分页的作业列表。
-- [ ] 列定义：作业名称、命名空间、所属队列、优先级、状态 (带颜色徽章)、提交时间。
-- [ ] **命名空间联动**: 列表内容需响应全局 Namespace 选择器的变化 (RxJS pipe/switchMap)。
+- [x] 使用 `mat-table` 实现支持排序 (`MatSort`)、过滤、分页 (`MatPaginator`) 的作业列表。
+- [x] 列定义：作业名称、命名空间、所属队列、状态 (带颜色 Chip)、提交时间、任务数。
+- [x] **命名空间联动**: 列表内容响应全局 Namespace 选择器的变化 (`combineLatest` + `switchMap`)。
 
 ### 4.2 作业详情视图
 
-- [ ] 点击行展开或跳转至详情页。
-- [ ] 列出 **Task/Pod** 细目：每个任务被分配到了哪个节点？
-- [ ] 展示每个 Task 的资源请求详情。
+- [x] 点击行展开详情 (Expandable Row, `multiTemplateDataRows` + `@detailExpand` 动画)。
+- [x] 列出 **Task/Pod** 细目：每个任务的名称、状态、以及被分配到了哪个节点。
+- [ ] 展示每个 Task 的资源请求详情 (CPU/Memory/GPU requests)。
 
 ---
 
@@ -104,13 +106,13 @@
 
 ### 6.1 自动刷新 (Auto-Refresh)
 
-- [ ] 实现轮询机制 (RxJS `timer` + `switchMap`)，保持数据实时性，无需手动刷新页面。
-- [ ] 添加“暂停/恢复”实时更新的控制按钮。
+- [x] 实现轮询机制 (RxJS `timer` + `switchMap`)，保持数据实时性，无需手动刷新页面。
+- [x] 添加“暂停/恢复”实时更新的控制按钮。
 
 ### 6.2 错误处理
 
-- [ ] 针对 API 错误 (例如 Scheduler 不可达) 设计友好的 UI 状态 (`mat-card` Empty State / Error Banner)。
-- [ ] 添加加载指示器 (`mat-spinner`, `mat-progress-bar`) 优化首屏加载体验。
+- [x] 针对 API 错误 (例如 Scheduler 不可达) 设计友好的 UI 状态 (`mat-card` Empty State / Error Banner)。
+- [x] 添加加载指示器 (`mat-spinner`, `mat-progress-bar`) 优化首屏加载体验。
 
 ### 6.3 构建与嵌入 (可选/高级)
 
@@ -123,5 +125,8 @@
 - **Phase 2.1**: 项目工程搭建 + 仪表盘 (Dashboard) + 基础导航框架 (Angular) (DONE)
 - **Phase 2.2**: 作业列表 (Jobs) & 命名空间过滤 (DONE)。
 - **Phase 2.3**: 节点网格 (Nodes) & GPU 插槽可视化 (DONE)。
-- **Phase 2.4**: 队列层级可视化 (Queue Hierarchy)。
-- **Phase 2.5**: 细节打磨、自动刷新机制、集成测试。
+- **Phase 2.4**: 队列层级可视化 (Queue Hierarchy) (DONE)。
+- **Phase 2.5**: 细节打磨、自动刷新机制、Error Banner、Donut Chart (DONE)。
+- **Phase 2.6**: 作业资源详情 (Task Resource Details) (Ready)
+- **Phase 2.7**: 队列详情面板 (Queue Detail Panel) (Ready)
+- **Phase 2.8**: Go Embed 生产打包 (Single Binary Distribution) (Ready)

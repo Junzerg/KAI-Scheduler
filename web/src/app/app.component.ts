@@ -1,6 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { MatSidenav } from '@angular/material/sidenav';
 import { NamespaceService } from './namespace.service';
+import { RefreshService } from './refresh.service';
 
 @Component({
   selector: 'app-root',
@@ -14,7 +15,10 @@ export class AppComponent {
 
   @ViewChild('sidenav') sidenav!: MatSidenav;
 
-  constructor(private namespaceService: NamespaceService) { }
+  constructor(
+    private namespaceService: NamespaceService,
+    public refreshService: RefreshService
+  ) { }
 
   onNamespaceChange(namespace: string): void {
     this.selectedNamespace = namespace;

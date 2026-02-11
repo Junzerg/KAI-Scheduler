@@ -1,12 +1,14 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, AfterViewInit } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { VisualizerService, JobView } from '../visualizer.service';
 import { NamespaceService } from '../namespace.service';
+import { RefreshService } from '../refresh.service';
 import { switchMap, catchError } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { combineLatest, of, Subscription } from 'rxjs';
 import { animate, state, style, transition, trigger } from '@angular/animations';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
     selector: 'app-jobs',
@@ -20,27 +22,40 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
         ]),
     ],
 })
-export class JobsComponent implements OnInit, AfterViewInit {
+export class JobsComponent implements OnInit, AfterViewInit, OnDestroy {
 
     displayedColumns: string[] = ['name', 'namespace', 'status', 'queue', 'createTime', 'tasks'];
     dataSource: MatTableDataSource<JobView>;
     expandedElement: JobView | null | undefined;
     isLoadingResults = true;
+    statusFilter = '';
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
 
+    private sub!: Subscription;
+
     constructor(
         private visualizerService: VisualizerService,
-        private namespaceService: NamespaceService
+        private namespaceService: NamespaceService,
+        private refreshService: RefreshService,
+        private route: ActivatedRoute,
     ) {
         this.dataSource = new MatTableDataSource();
     }
 
     ngOnInit(): void {
-        // Subscribe to namespace changes and refresh data
-        this.namespaceService.selectedNamespace$.pipe(
-            switchMap(ns => {
+        // Read status filter from query params (e.g. from Donut Chart click)
+        this.route.queryParams.subscribe(params => {
+            this.statusFilter = params['status'] || '';
+        });
+
+        // Combine tick + namespace for polling refresh
+        this.sub = combineLatest([
+            this.refreshService.tick$,
+            this.namespaceService.selectedNamespace$,
+        ]).pipe(
+            switchMap(([, ns]) => {
                 this.isLoadingResults = true;
                 return this.visualizerService.getJobs(ns).pipe(
                     catchError(() => {
@@ -52,7 +67,10 @@ export class JobsComponent implements OnInit, AfterViewInit {
         ).subscribe(data => {
             this.isLoadingResults = false;
             this.dataSource.data = data;
-            // Re-apply filter if needed or just reset page
+            // Apply status filter from query param
+            if (this.statusFilter) {
+                this.dataSource.filter = this.statusFilter.toLowerCase();
+            }
             if (this.paginator) {
                 this.paginator.firstPage();
             }
@@ -70,8 +88,13 @@ export class JobsComponent implements OnInit, AfterViewInit {
         };
     }
 
+    ngOnDestroy(): void {
+        this.sub?.unsubscribe();
+    }
+
     applyFilter(event: Event) {
         const filterValue = (event.target as HTMLInputElement).value;
+        this.statusFilter = ''; // clear query-param filter when user types
         this.dataSource.filter = filterValue.trim().toLowerCase();
 
         if (this.dataSource.paginator) {

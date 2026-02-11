@@ -1,0 +1,36 @@
+<div class="donut-wrapper">
+    <svg viewBox="0 0 200 200" class="donut-svg" *ngIf="total > 0; else noJobs">
+        <!-- Arcs -->
+        <path *ngFor="let seg of segments" [attr.d]="seg.path" [attr.fill]="seg.color"
+            [class.hovered]="hoveredSegment === seg" class="arc-segment" (mouseenter)="onSegmentHover(seg)"
+            (mouseleave)="onSegmentHover(null)" (click)="onSegmentClick(seg)">
+        </path>
+
+        <!-- Center text -->
+        <text [attr.x]="cx" [attr.y]="cy - 6" class="center-total">{{ total }}</text>
+        <text [attr.x]="cx" [attr.y]="cy + 14" class="center-label">Jobs</text>
+    </svg>
+
+    <!-- Tooltip -->
+    <div class="donut-tooltip" *ngIf="hoveredSegment as seg">
+        <span class="tooltip-dot" [style.background]="seg.color"></span>
+        {{ seg.status }}: {{ seg.count }} ({{ (seg.percent * 100) | number:'1.0-0' }}%)
+    </div>
+
+    <!-- Legend -->
+    <div class="donut-legend" *ngIf="total > 0">
+        <div *ngFor="let seg of segments" class="legend-item" (mouseenter)="onSegmentHover(seg)"
+            (mouseleave)="onSegmentHover(null)" (click)="onSegmentClick(seg)">
+            <span class="legend-dot" [style.background]="seg.color"></span>
+            <span class="legend-label">{{ seg.status }}</span>
+            <span class="legend-count">{{ seg.count }}</span>
+        </div>
+    </div>
+
+    <ng-template #noJobs>
+        <div class="no-jobs">
+            <mat-icon class="no-jobs-icon">work_off</mat-icon>
+            <span>No jobs</span>
+        </div>
+    </ng-template>
+</div>

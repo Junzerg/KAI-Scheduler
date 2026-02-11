@@ -1,0 +1,67 @@
+# ============================================================
+# Demo Workloads for KAI Scheduler Console Testing
+# Usage:
+#   kubectl apply -f docs/dev/examples/demo-workloads.yaml
+#   kubectl delete -f docs/dev/examples/demo-workloads.yaml
+# ============================================================
+
+---
+# 1. A long-running pod (will show as "Running" in dashboard)
+apiVersion: v1
+kind: Pod
+metadata:
+  name: demo-running-job
+  namespace: default
+  labels:
+    kai.scheduler/queue: default-queue
+spec:
+  schedulerName: kai-scheduler
+  containers:
+    - name: worker
+      image: busybox
+      args: ["sh", "-c", "echo 'Working...' && sleep 3600"]
+      resources:
+        requests:
+          cpu: "100m"
+          memory: "64Mi"
+
+---
+# 2. A pod that completes quickly (will show as "Completed")
+apiVersion: v1
+kind: Pod
+metadata:
+  name: demo-completed-job
+  namespace: default
+  labels:
+    kai.scheduler/queue: default-queue
+spec:
+  schedulerName: kai-scheduler
+  restartPolicy: Never
+  containers:
+    - name: worker
+      image: busybox
+      args: ["sh", "-c", "echo 'Done!' && sleep 5"]
+      resources:
+        requests:
+          cpu: "50m"
+          memory: "32Mi"
+
+---
+# 3. A pod requesting too many resources (will stay "Pending")
+apiVersion: v1
+kind: Pod
+metadata:
+  name: demo-pending-job
+  namespace: default
+  labels:
+    kai.scheduler/queue: default-queue
+spec:
+  schedulerName: kai-scheduler
+  containers:
+    - name: worker
+      image: busybox
+      args: ["sh", "-c", "sleep 3600"]
+      resources:
+        requests:
+          cpu: "100"
+          memory: "512Gi"

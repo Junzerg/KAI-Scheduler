@@ -1,0 +1,115 @@
+.donut-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.donut-svg {
+    width: 180px;
+    height: 180px;
+    cursor: pointer;
+}
+
+/* ── Arc segments ── */
+.arc-segment {
+    stroke: #fff;
+    stroke-width: 1.5;
+    transition: opacity 0.2s, transform 0.2s;
+    transform-origin: 100px 100px;
+}
+
+.arc-segment:hover,
+.arc-segment.hovered {
+    opacity: 0.85;
+    transform: scale(1.04);
+}
+
+/* ── Center text ── */
+.center-total {
+    text-anchor: middle;
+    font-size: 26px;
+    font-weight: 600;
+    fill: #333;
+}
+
+.center-label {
+    text-anchor: middle;
+    font-size: 12px;
+    fill: #888;
+}
+
+/* ── Floating tooltip ── */
+.donut-tooltip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    background: rgba(0, 0, 0, 0.78);
+    color: #fff;
+    font-size: 13px;
+    border-radius: 4px;
+    pointer-events: none;
+}
+
+.tooltip-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+/* ── Legend ── */
+.donut-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    justify-content: center;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    font-size: 13px;
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: background 0.15s;
+
+    &:hover {
+        background: rgba(0, 0, 0, 0.06);
+    }
+}
+
+.legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.legend-label {
+    color: #555;
+}
+
+.legend-count {
+    font-weight: 600;
+    color: #333;
+}
+
+/* ── Empty state ── */
+.no-jobs {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 30px;
+    color: #aaa;
+}
+
+.no-jobs-icon {
+    font-size: 40px;
+    width: 40px;
+    height: 40px;
+}

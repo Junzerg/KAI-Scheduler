@@ -12,14 +12,20 @@
   min-height: 200px;
 }
 
+.chart-card {
+  min-height: 280px;
+}
+
 .metric-value {
   font-size: 48px;
   font-weight: 500;
   margin-top: 10px;
-  color: #3f51b5; /* Primary */
+  color: #3f51b5;
+  /* Primary */
 }
 
-.metric-sub, .metric-list {
+.metric-sub,
+.metric-list {
   color: rgba(0, 0, 0, 0.54);
   font-size: 14px;
   margin-top: 8px;
@@ -32,11 +38,47 @@
   border-bottom: 1px solid #eee;
 }
 
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 300px;
-  color: #666;
+/* ── Skeleton Loading ── */
+.skeleton-card {
+  pointer-events: none;
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #eee 25%, #f5f5f5 50%, #eee 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: 4px;
+}
+
+.skeleton-title {
+  width: 80px;
+  height: 20px;
+  margin-bottom: 6px;
+}
+
+.skeleton-subtitle {
+  width: 120px;
+  height: 14px;
+}
+
+.skeleton-metric {
+  width: 80px;
+  height: 48px;
+  margin-top: 16px;
+}
+
+.skeleton-sub {
+  width: 100px;
+  height: 14px;
+  margin-top: 10px;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
 }
