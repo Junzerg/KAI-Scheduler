@@ -1,0 +1,38 @@
+<mat-card class="node-card" [class.not-ready]="!isReady">
+    <mat-card-header>
+        <div mat-card-avatar class="status-indicator" [class.ready]="isReady"></div>
+        <mat-card-title>{{ node.name }}</mat-card-title>
+        <mat-card-subtitle>{{ node.status }}</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+        <div class="resource-row">
+            <div class="resource-item">
+                <span class="label">CPU</span>
+                <span class="value">{{ cpuCapacity }}</span>
+            </div>
+            <div class="resource-item">
+                <span class="label">Mem</span>
+                <span class="value">{{ memCapacity }}</span>
+            </div>
+        </div>
+
+        <div class="usage-container">
+            <div class="usage-row">
+                <span class="mini-label">CPU Use</span>
+                <mat-progress-bar mode="determinate" [value]="cpuUsagePercent" class="usage-bar"></mat-progress-bar>
+                <span class="mini-value">{{ cpuUsagePercent | number:'1.0-0' }}%</span>
+            </div>
+            <div class="usage-row">
+                <span class="mini-label">Mem Use</span>
+                <mat-progress-bar mode="determinate" [value]="memUsagePercent" class="usage-bar"></mat-progress-bar>
+                <span class="mini-value">{{ memUsagePercent | number:'1.0-0' }}%</span>
+            </div>
+        </div>
+
+        <div class="gpu-section" *ngIf="hasGpu">
+            <div class="gpu-header">GPUs ({{ node.gpuSlots.length }})</div>
+            <app-gpu-slots [slots]="node.gpuSlots"></app-gpu-slots>
+        </div>
+    </mat-card-content>
+</mat-card>

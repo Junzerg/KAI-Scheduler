@@ -1,5 +1,6 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { MatSidenav } from '@angular/material/sidenav';
+import { NamespaceService } from './namespace.service';
 
 @Component({
   selector: 'app-root',
@@ -8,8 +9,15 @@ import { MatSidenav } from '@angular/material/sidenav';
 })
 export class AppComponent {
   title = 'console';
+  namespaces: string[] = ['default', 'kube-system']; // TODO: Fetch from backend dynamically in future
+  selectedNamespace = '';
 
   @ViewChild('sidenav') sidenav!: MatSidenav;
 
-  constructor() {}
+  constructor(private namespaceService: NamespaceService) { }
+
+  onNamespaceChange(namespace: string): void {
+    this.selectedNamespace = namespace;
+    this.namespaceService.setNamespace(namespace);
+  }
 }

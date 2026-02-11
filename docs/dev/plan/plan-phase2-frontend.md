@@ -18,14 +18,14 @@
 
 ### 1.1 项目脚手架搭建 (Scaffold)
 
-- [ ] 在 `web/` 目录下初始化 Angular 项目结构。
-- [ ] 配置 Angular Material 主题 (Indigo/Pink 或根据 Kubeflow 自定义主题)。
-- [ ] 配置 `proxy.conf.json` 开发服务器代理，将 API 请求转发到本地 Scheduler API (例如 `http://127.0.0.1:8081`)。
+- [x] 在 `web/` 目录下初始化 Angular 项目结构。
+- [x] 配置 Angular Material 主题 (Indigo/Pink 或根据 Kubeflow 自定义主题)。
+- [x] 配置 `proxy.conf.json` 开发服务器代理，将 API 请求转发到本地 Scheduler API (例如 `http://127.0.0.1:8081`)。
 
 ### 1.2 核心布局与导航
 
-- [ ] 实现响应式的 **侧边栏/导航栏 (Sidenav)** (Dashboard, Queues, Jobs, Nodes)。
-- [ ] 创建 **顶部栏 (Toolbar)**，包含全局命名空间选择器 (Namespace Selector)。
+- [x] 实现响应式的 **侧边栏/导航栏 (Sidenav)** (Dashboard, Queues, Jobs, Nodes)。
+- [x] 创建 **顶部栏 (Toolbar)**，包含全局命名空间选择器 (Namespace Selector)。
 - [ ] 实现 **全局状态服务** (RxJS BehaviorSubject)，用于管理当前选中的 Namespace 和用户偏好设置。
 
 ---
@@ -36,7 +36,7 @@
 
 ### 2.1 核心指标卡片 (Metrics Cards)
 
-- [ ] 使用 `mat-card` 展示聚合计数器：节点总数、健康/异常节点数、GPU 总数、已分配 GPU 数。
+- [x] 使用 `mat-card` 展示聚合计数器：节点总数、健康/异常节点数、GPU 总数、已分配 GPU 数。
 - [ ] (可选) 如果未来有历史数据，可添加迷你趋势图。
 
 ### 2.2 作业状态分布
@@ -89,14 +89,14 @@
 
 ### 5.1 节点网格 (Node Grid)
 
-- [ ] 以网格形式 (`mat-grid-list` 或 Flexbox) 展示所有节点卡片，根据健康状态标记颜色。
-- [ ] 每个卡片上展示 CPU/内存的简要使用率条 (`mat-progress-bar`)。
+- [x] 以网格形式 (`mat-grid-list` 或 Flexbox) 展示所有节点卡片，根据健康状态标记颜色。
+- [x] 每个卡片上展示 CPU/内存的简要使用率条 (`mat-progress-bar`)。
 
 ### 5.2 GPU 插槽可视化 (Visual Mapping)
 
-- [ ] 对于 GPU 节点，渲染 **GPU 插槽 (Slots)** 的物理布局 (例如 DGX 节点的 8 卡布局)。
-- [ ] **占用状态**: 清晰标识哪个插槽正在被哪个 Job/Pod 占用 (`mat-tooltip` 显示详情)。
-- [ ] **碎片识别**: 高亮显示那些因为拓扑/亲和性限制而闲置但无法被利用的“碎片”插槽。
+- [x] 对于 GPU 节点，渲染 **GPU 插槽 (Slots)** 的物理布局 (例如 DGX 节点的 8 卡布局)。
+- [x] **占用状态**: 清晰标识哪个插槽正在被哪个 Job/Pod 占用 (`mat-tooltip` 显示详情)。
+- [x] **碎片识别**: 高亮显示那些因为拓扑/亲和性限制而闲置但无法被利用的“碎片”插槽。
 
 ---
 
@@ -120,8 +120,8 @@
 
 ## 7. 分阶段执行路线图 (Roadmap)
 
-- **Phase 2.1**: 项目工程搭建 + 仪表盘 (Dashboard) + 基础导航框架 (Angular)。
-- **Phase 2.2**: 作业列表 (Jobs) & 命名空间过滤。
-- **Phase 2.3**: 节点网格 (Nodes) & GPU 插槽可视化。
+- **Phase 2.1**: 项目工程搭建 + 仪表盘 (Dashboard) + 基础导航框架 (Angular) (DONE)
+- **Phase 2.2**: 作业列表 (Jobs) & 命名空间过滤 (DONE)。
+- **Phase 2.3**: 节点网格 (Nodes) & GPU 插槽可视化 (DONE)。
 - **Phase 2.4**: 队列层级可视化 (Queue Hierarchy)。
 - **Phase 2.5**: 细节打磨、自动刷新机制、集成测试。

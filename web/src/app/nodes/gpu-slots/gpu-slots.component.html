@@ -1,0 +1,9 @@
+<div class="slots-container" *ngIf="slots && slots.length > 0">
+    <div class="slot" *ngFor="let slot of slots" [ngClass]="getSlotClass(slot)" [matTooltip]="getTooltip(slot)"
+        matTooltipPosition="above">
+        <span class="slot-id">{{ slot.id }}</span>
+    </div>
+</div>
+<div class="no-gpu" *ngIf="!slots || slots.length === 0">
+    No GPUs
+</div>

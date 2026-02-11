@@ -5,8 +5,16 @@
     </button>
     <span class="app-title">KAI Scheduler Console</span>
     <span class="spacer"></span>
-    <!-- Placeholder for Namespace Selector -->
-    <button mat-button>Namespace: default</button>
+    <!-- Namespace Selector -->
+    <mat-form-field appearance="outline" class="namespace-selector">
+      <mat-label>Namespace</mat-label>
+      <mat-select [(value)]="selectedNamespace" (selectionChange)="onNamespaceChange($event.value)">
+        <mat-option value="">All Namespaces</mat-option>
+        <mat-option *ngFor="let ns of namespaces" [value]="ns">
+          {{ns || 'All Namespaces'}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
   </mat-toolbar>
 
   <mat-sidenav-container class="sidenav-container">
@@ -20,13 +28,13 @@
           <mat-icon mat-list-icon>account_tree</mat-icon>
           <span mat-line>Queues (Phase 2.4)</span>
         </a>
-        <a mat-list-item routerLink="/jobs" routerLinkActive="active-link" [disabled]="true">
+        <a mat-list-item routerLink="/jobs" routerLinkActive="active-link">
           <mat-icon mat-list-icon>work</mat-icon>
-          <span mat-line>Jobs (Phase 2.2)</span>
+          <span mat-line>Jobs</span>
         </a>
-        <a mat-list-item routerLink="/nodes" routerLinkActive="active-link" [disabled]="true">
+        <a mat-list-item routerLink="/nodes" routerLinkActive="active-link">
           <mat-icon mat-list-icon>dns</mat-icon>
-          <span mat-line>Nodes (Phase 2.3)</span>
+          <span mat-line>Nodes</span>
         </a>
       </mat-nav-list>
     </mat-sidenav>

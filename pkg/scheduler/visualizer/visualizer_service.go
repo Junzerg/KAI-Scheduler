@@ -10,6 +10,7 @@ import (
 
 	v1 "k8s.io/api/core/v1"
 
+	"github.com/NVIDIA/KAI-scheduler/pkg/scheduler/api/node_info"
 	"github.com/NVIDIA/KAI-scheduler/pkg/scheduler/api/pod_status"
 	"github.com/NVIDIA/KAI-scheduler/pkg/scheduler/api/podgroup_info"
 	"github.com/NVIDIA/KAI-scheduler/pkg/scheduler/api/queue_info"
@@ -175,8 +176,9 @@ func (vs *visualizerService) GetNodes() ([]*vizinfo.NodeView, error) {
 				}
 				return "NotReady"
 			}(),
-			Resources: convertResourceToStats(ni.Allocatable),
-			GPUSlots:  make([]*vizinfo.GPUSlot, 0),
+			Allocatable: convertResourceToStats(ni.Allocatable),
+			Used:        convertResourceToStats(ni.Used),
+			GPUSlots:    make([]*vizinfo.GPUSlot, 0),
 		}
 
 		// Fill GPUSlots
@@ -186,7 +188,7 @@ func (vs *visualizerService) GetNodes() ([]*vizinfo.NodeView, error) {
 			nv.GPUSlots = append(nv.GPUSlots, &vizinfo.GPUSlot{
 				ID:         i,
 				OccupiedBy: "",
-				Fragmented: false, // Logic to determine fragmentation can be complex; defaulting to false for now
+				Fragmented: vs.isGPUFragmented(ni, i),
 			})
 		}
 
@@ -284,4 +286,14 @@ func convertResourceToStats(r *resource_info.Resource) vizinfo.ResourceStats {
 		Memory:   int64(r.Memory()),
 		GPU:      int64(r.GPUs()),
 	}
+}
+
+// isGPUFragmented checks if a GPU slot is fragmented.
+func (vs *visualizerService) isGPUFragmented(ni *node_info.NodeInfo, gpuID int) bool {
+	// TODO(Phase 2.3): Implement detailed fragmentation logic.
+	// This would involve checking:
+	// 1. Is the GPU idle?
+	// 2. Are there pending pods that need this GPU but can't use it due to topology constraints (e.g. NVLink)?
+	// For now, return false as placeholder.
+	return false
 }

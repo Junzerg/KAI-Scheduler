@@ -1,4 +1,5 @@
 # 实施计划 Phase 2.1: 前端工程搭建与仪表盘 (Dashboard) - Angular 14
+**Status: COMPLETED** ✅
 
 > **注意**: 本计划参考 Kubeflow 子项目依赖配置，锁定使用 **Angular 14** 技术栈，以确保与 Kubeflow 原生组件（如 Jupyter Web App）的完全兼容性。
 
@@ -6,11 +7,11 @@
 
 ## 1. 阶段目标
 
-- [ ] **环境锁定**: 使用 Angular CLI 14 初始化项目，确保依赖版本与 Kubeflow 官方组件一致。
-- [ ] **工程初始化**: 搭建 `web` 项目，配置 SCSS 和 Strict Mode。
-- [ ] **依赖同步**: 安装 `package.json` 中列出的核心依赖 (Angular Material 14, RxJS 7.4, etc.)。
-- [ ] **样式集成**: 配置 Angular Material 主题，尽量复用 Kubeflow 风格 (Indigo/Pink)。
-- [ ] **网络连通**: 配置 Proxy 转发 `/api` 请求。
+- [x] **环境锁定**: 使用 Angular CLI 14 初始化项目，确保依赖版本与 Kubeflow 官方组件一致。
+- [x] **工程初始化**: 搭建 `web` 项目，配置 SCSS 和 Strict Mode。
+- [x] **依赖同步**: 安装 `package.json` 中列出的核心依赖 (Angular Material 14, RxJS 7.4, etc.)。
+- [x] **样式集成**: 配置 Angular Material 主题，尽量复用 Kubeflow 风格 (Indigo/Pink)。
+- [x] **网络连通**: 配置 Proxy 转发 `/api` 请求。
 
 ---
 

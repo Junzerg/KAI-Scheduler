@@ -1,4 +1,3 @@
-
 .app-container {
   display: flex;
   flex-direction: column;
@@ -12,7 +11,7 @@
 .main-toolbar {
   position: relative;
   z-index: 2;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.26);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
 }
 
 .spacer {
@@ -25,18 +24,54 @@
 
 .app-sidenav {
   width: 250px;
-  border-right: 1px solid rgba(0,0,0,0.12);
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
 }
 
 .main-content {
   padding: 20px;
-  background-color: #f8fafb; /* Kubeflow style */
+  background-color: #f8fafb;
+  /* Kubeflow style */
   height: 100%;
   box-sizing: border-box;
 }
 
 .active-link {
-  background: rgba(0,0,0,0.04);
-  color: #3f51b5; /* Primary */
+  background: rgba(0, 0, 0, 0.04);
+  color: #3f51b5;
+  /* Primary */
   font-weight: 500;
+}
+
+/* Namespace Selector Styling */
+/* Namespace Selector Styling */
+.namespace-selector {
+  font-size: 14px;
+  width: 180px;
+
+  /* Align vertically in toolbar */
+  margin-bottom: -0.6em;
+
+  ::ng-deep .mat-form-field-wrapper {
+    padding-bottom: 0;
+  }
+
+  ::ng-deep .mat-form-field-outline {
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  ::ng-deep .mat-form-field-outline-thick {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  ::ng-deep .mat-select-value-text {
+    color: white !important;
+  }
+
+  ::ng-deep .mat-select-arrow {
+    color: white !important;
+  }
+
+  ::ng-deep .mat-form-field-label {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
 }

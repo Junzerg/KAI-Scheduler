@@ -1,0 +1,44 @@
+<div class="nodes-container">
+    <mat-toolbar color="primary" class="toolbar">
+        <span>Node Topology</span>
+        <span class="spacer"></span>
+
+        <button mat-button (click)="toggleGpuFilter()" [color]="showGpuOnly ? 'accent' : ''">
+            <mat-icon>{{ showGpuOnly ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
+            GPU Nodes Only
+        </button>
+
+        <button mat-icon-button (click)="toggleAutoRefresh()"
+            [matTooltip]="autoRefresh ? 'Pause Auto-Refresh' : 'Resume Auto-Refresh'">
+            <mat-icon>{{ autoRefresh ? 'pause' : 'play_arrow' }}</mat-icon>
+        </button>
+    </mat-toolbar>
+
+    <div class="filter-bar">
+        <mat-form-field appearance="outline" class="search-field">
+            <mat-label>Filter Nodes</mat-label>
+            <input matInput [ngModel]="filterText" (ngModelChange)="onFilterChange($event)"
+                placeholder="Search by name...">
+            <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+    </div>
+
+    <div class="grid-container" *ngIf="filteredNodes$ | async as nodes; else loading">
+        <div class="node-grid">
+            <app-node-card *ngFor="let node of nodes" [node]="node" class="grid-item">
+            </app-node-card>
+        </div>
+
+        <div *ngIf="nodes.length === 0" class="empty-state">
+            <mat-icon>search_off</mat-icon>
+            <p>No nodes found matching criteria.</p>
+        </div>
+    </div>
+
+    <ng-template #loading>
+        <div class="loading-container">
+            <mat-spinner diameter="40"></mat-spinner>
+            <p>Loading Nodes...</p>
+        </div>
+    </ng-template>
+</div>

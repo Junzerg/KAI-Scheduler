@@ -24,4 +24,53 @@ export class VisualizerService {
   getClusterSummary(): Observable<ClusterSummary> {
     return this.http.get<ClusterSummary>(`${this.apiUrl}/summary`);
   }
+
+  getJobs(namespace: string = ''): Observable<JobView[]> {
+    const params: { [key: string]: string } = {};
+    if (namespace) {
+      params['namespace'] = namespace;
+    }
+    return this.http.get<JobView[]>(`${this.apiUrl}/jobs`, { params });
+  }
+
+  getNodes(): Observable<NodeView[]> {
+    return this.http.get<NodeView[]>(`${this.apiUrl}/nodes`);
+  }
+}
+
+export interface ResourceStats {
+  milliCPU: number;
+  memory: number;
+  gpu: number;
+  scalarResources?: { [key: string]: number };
+}
+
+export interface GPUSlot {
+  id: number;
+  occupiedBy: string;
+  fragmented: boolean;
+}
+
+export interface NodeView {
+  name: string;
+  status: string;
+  allocatable: ResourceStats;
+  used: ResourceStats;
+  gpuSlots: GPUSlot[];
+}
+
+export interface TaskView {
+  name: string;
+  status: string;
+  nodeName: string;
+}
+
+export interface JobView {
+  uid: string;
+  name: string;
+  namespace: string;
+  queue: string;
+  status: string;
+  createTime: string;
+  tasks: TaskView[];
 }

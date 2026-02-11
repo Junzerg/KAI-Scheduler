@@ -79,6 +79,7 @@ type GPUSlot struct {
 type NodeView struct {
 	Name      string        `json:"name"`
 	Status    string        `json:"status"`
-	Resources ResourceStats `json:"resources"`
-	GPUSlots  []*GPUSlot    `json:"gpuSlots"`
+	Allocatable ResourceStats `json:"allocatable"`
+	Used        ResourceStats `json:"used"`
+	GPUSlots    []*GPUSlot    `json:"gpuSlots"`
 }
