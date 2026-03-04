@@ -19,6 +19,12 @@ cmd/time-aware-simulator/venv
 # offline-bundle docker images (large binary files)
 offline-bundle/docker-images/*.tar
 
+# offline deployment artifacts (images, helm package, transfer bundle)
+offline-images/
+offline-package/
+offline-deploy/
+kai-scheduler-offline-*.tar.gz
+
 # Frontend (Angular/Web)
 web/node_modules/
 web/dist/
