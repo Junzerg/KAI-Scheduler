@@ -1,0 +1,72 @@
+apiVersion: trainer.kubeflow.org/v1alpha1
+kind: ClusterTrainingRuntime
+metadata:
+  name: toy-kai
+  labels:
+    trainer.kubeflow.org/framework: torch
+spec:
+  mlPolicy:
+    numNodes: 1
+    torch:
+      numProcPerNode: auto
+  template:
+    spec:
+      replicatedJobs:
+        - groupName: default
+          name: node
+          replicas: 1
+          template:
+            metadata:
+              labels:
+                kai.scheduler/queue: default-queue
+                trainer.kubeflow.org/trainjob-ancestor-step: trainer
+            spec:
+              template:
+                spec:
+                  schedulerName: kai-scheduler
+                  volumes:
+                    - name: fake-bin
+                      emptyDir: {}
+                  initContainers:
+                    - name: fake-torchrun
+                      image: kubeflow/kubeflow/notebook-servers/jupyter-scipy:v1.10.0
+                      imagePullPolicy: IfNotPresent
+                      command: ['bash', '-c']
+                      args:
+                        - |
+                          cat << 'EOF' > /opt/fake/torchrun
+                          #!/bin/bash
+                          # 忽略 torchrun 的分布式参数，直接找到最后一个 .py 文件并用 python3 运行
+                          SCRIPT=""
+                          for arg in "$@"; do
+                            if [[ "$arg" == *.py ]]; then
+                              SCRIPT="$arg"
+                            fi
+                          done
+                          echo "🔥 Faked torchrun intercepted! Executing: python3 $SCRIPT"
+                          chmod +x "$SCRIPT" 2>/dev/null || true
+                          exec python3 "$SCRIPT"
+                          EOF
+                          chmod +x /opt/fake/torchrun
+                      volumeMounts:
+                        - name: fake-bin
+                          mountPath: /opt/fake
+                  containers:
+                    - name: node
+                      image: kubeflow/kubeflow/notebook-servers/jupyter-scipy:v1.10.0
+                      imagePullPolicy: IfNotPresent
+                      workingDir: /tmp
+                      env:
+                        - name: PATH
+                          value: /opt/fake:/opt/conda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+                      volumeMounts:
+                        - name: fake-bin
+                          mountPath: /opt/fake
+                      resources:
+                        requests:
+                          cpu: "100m"
+                          memory: "256Mi"
+                        limits:
+                          cpu: "200m"
+                          memory: "512Mi"
+                  restartPolicy: OnFailure

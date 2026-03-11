@@ -114,10 +114,10 @@ nodescaleadjuster:
   affinity: {}
 
 crdupgrader:
+  enabled: false
   image:
     name: crd-upgrader
     pullPolicy: IfNotPresent
-    # tag: ""  # Optional: Override global.tag or Chart.AppVersion
 
 topologyMigration:
   # Enable migration of Kueue Topology CRs to KAI Topology CRs
@@ -125,7 +125,7 @@ topologyMigration:
   # 1. Check if Kueue Topology CRD exists
   # 2. Copy existing Kueue Topologies to KAI Topologies with the same spec
   # The migrated topologies will have an annotation indicating they were migrated
-  enabled: true
+  enabled: false
   image:
     name: crd-upgrader
     pullPolicy: IfNotPresent

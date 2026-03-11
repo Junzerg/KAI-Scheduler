@@ -1,0 +1,119 @@
+# ================================================================
+# PodGrouper 手动部署清单
+# ================================================================
+# 当你关停了 kai-operator (replicas=0)，但仍需要 PodGrouper 来
+# 将 Pod 打包成 PodGroup 时，使用此文件手动拉起 PodGrouper。
+#
+# 使用前：
+#   1. 替换 <YOUR_PODGROUPER_IMAGE> 为实际镜像地址 (如 registry/local/kai-scheduler/podgrouper:v0.x.x)
+#   2. kubectl apply -f podgrouper-manual-deploy.yaml
+#
+# 清理：
+#   kubectl delete -f podgrouper-manual-deploy.yaml
+# ================================================================
+
+---
+# 1. ServiceAccount
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: pod-grouper
+  namespace: kai-scheduler
+
+---
+# 2. ClusterRole (权限已从 Helm chart 中提取)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kai-podgrouper
+rules:
+- apiGroups: [""]
+  resources: [configmaps, namespaces]
+  verbs: [get, list, watch]
+- apiGroups: [""]
+  resources: [events, pods]
+  verbs: [create, get, list, patch, update, watch]
+- apiGroups: [""]
+  resources: [pods/finalizers]
+  verbs: [create, patch, update]
+- apiGroups: [apps]
+  resources: [deployments, replicasets, statefulsets]
+  verbs: [get, list, watch]
+- apiGroups: [apps]
+  resources: [deployments/finalizers, replicasets/finalizers, statefulsets/finalizers]
+  verbs: [create, patch, update]
+- apiGroups: [batch]
+  resources: [cronjobs, jobs]
+  verbs: [get, list, watch]
+- apiGroups: [batch]
+  resources: [cronjobs/finalizers, jobs/finalizers]
+  verbs: [create, patch, update]
+- apiGroups: [coordination.k8s.io]
+  resources: [leases]
+  verbs: [create, delete, get, list, patch, update, watch]
+- apiGroups: [""]
+  resources: [configmaps]
+  verbs: [create, delete, get, list, patch, update, watch]
+- apiGroups: [scheduling.k8s.io]
+  resources: [priorityclasses]
+  verbs: [get, list, watch]
+- apiGroups: [scheduling.run.ai]
+  resources: [podgroups]
+  verbs: [create, get, list, patch, update, watch]
+# Kubeflow 相关
+- apiGroups: [kubeflow.org]
+  resources: [jaxjobs, mpijobs, notebooks, pytorchjobs, scheduledworkflows, tfjobs, xgboostjobs]
+  verbs: [get, list, watch]
+- apiGroups: [kubeflow.org]
+  resources: [jaxjobs/finalizers, mpijobs/finalizers, notebooks/finalizers, pytorchjobs/finalizers, scheduledworkflows/finalizers, tfjobs/finalizers, xgboostjobs/finalizers]
+  verbs: [create, patch, update]
+
+---
+# 3. ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kai-podgrouper
+subjects:
+  - kind: ServiceAccount
+    name: pod-grouper
+    namespace: kai-scheduler
+roleRef:
+  kind: ClusterRole
+  name: kai-podgrouper
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# 4. Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pod-grouper
+  namespace: kai-scheduler
+  labels:
+    app: pod-grouper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pod-grouper
+  template:
+    metadata:
+      labels:
+        app: pod-grouper
+    spec:
+      serviceAccountName: pod-grouper
+      containers:
+      - name: pod-grouper
+        # ⚠️ 替换为你实际的镜像地址！
+        # 运行下面的命令查看已有镜像:
+        #   kubectl get deployments -n kai-scheduler -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.spec.template.spec.containers[0].image}{"\n"}{end}'
+        image: <YOUR_PODGROUPER_IMAGE>
+        imagePullPolicy: IfNotPresent
+        args:
+          - --scheduler-name
+          - kai-scheduler
+          - --queue-label-key
+          - kai.scheduler/queue
+          - --nodepool-label-key
+          - kai.scheduler/node-pool
