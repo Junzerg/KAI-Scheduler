@@ -1,5 +1,17 @@
 bin/
 .idea/
+
+# Python
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+.eggs/
+dist/
+build/
 charts/
 cover.out
 .DS_Store
